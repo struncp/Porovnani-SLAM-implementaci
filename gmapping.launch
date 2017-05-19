@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <param name="/use_sim_time" value="true"/>
+
+  <node pkg="rosbag" type="play" name="player" output="screen" args="--clock --pause /home/struncp/ros_workspace/test/SLAM_test_MIT_stata_center/2012-01-28-11-12-01.bag"/>
+
+  <node pkg="gmapping" type="slam_gmapping" name="gmapping">
+
+    <remap from="scan" to="base_scan" />
+    <!--  <param name="inverted_laser" value="false" /> -->
+    <!-- Process 1 out of every this many scans (set it to
+         a higher number to skip more scans) -->
+    <param name="throttle_scans" value="1" />
+    <!-- The frame attached to the mobile base. -->
+    <param name="base_frame" value="base_link" />
+    <!-- The frame attached to the map. -->
+    <param name="map_frame" value="map" />
+    <!-- The frame attached to the odometry system. -->
+    <param name="odom_frame" value="odom_combined" />
+    <!-- How long (in seconds) between updates to the map.
+         Lowering this number updates the occupancy grid more
+         often, at the expense of greater computational load.   -->
+    <param name="map_update_interval" value="1.0" />
+    <!--  The maximum usable range of the laser. A beam is cropped to this value. -->
+    <param name="maxUrange" value="10.0" />
+    <!-- The sigma used by the greedy endpoint matching -->
+    <param name="sigma" value="0.05" />
+    <!-- The kernel in which to look for a correspondence -->
+    <param name="kernelSize" value="1" />
+    <!--  The optimization step in translation -->
+    <param name="lstep" value="0.05" />
+    <!-- The optimization step in rotation -->
+    <param name="astep" value="0.05" />
+    <!--  The number of iterations of the scanmatcher -->
+    <param name="iterations" value="5" />
+    <!-- The sigma of a beam used for likelihood computation -->
+    <param name="lsigma" value="0.075" />
+    <!-- Gain to be used while evaluating the likelihood, for smoothing the resampling effects -->
+    <param name="ogain" value="3.0" />
+    <!-- Number of beams to skip in each scan. -->
+    <param name="lskip" value="0" />
+    <!-- Minimum score for considering the outcome of
+         the scan matching good. Can avoid jumping pose
+         estimates in large open spaces when using laser
+         scanners with limited range (e.g. 5m). Scores go
+         up to 600+, try 50 for example when experiencing
+         jumping estimate issues.   -->
+    <param name="minimumScore" value="0.0" />
+    <!-- Odometry error in translation as a function of translation (rho/rho) -->
+    <param name="srr" value="0.1" />
+    <!-- Odometry error in translation as a function of rotation (rho/theta) -->
+    <param name="srt" value="0.2" />
+    <!-- Odometry error in rotation as a function of translation (theta/rho) -->
+    <param name="str" value="0.1" />
+    <!-- Odometry error in rotation as a function of rotation (theta/theta) -->
+    <param name="stt" value="0.2" />
+    <!-- Process a scan each time the robot translates this far -->
+    <param name="linearUpdate " value="1.0" />
+    <!-- Process a scan each time the robot rotates this far -->
+    <param name="angularUpdate" value="0.5" />
+    <!-- Process a scan if the last scan processed is older than the update
+         time in seconds. A value less than zero will turn time based updates off. -->
+    <param name="temporalUpdate" value="-1.0" />
+    <!-- The Neff based resampling threshold -->
+    <param name="resampleThreshold" value="0.5" />
+    <!-- Number of particles in the filter -->
+    <param name="particles" value="30" />
+    <!-- Initial map size -->
+    <param name="xmin" value="-100.0" />
+    <!-- Initial map size -->
+    <param name="ymin" value="-100.0" />
+    <!-- Initial map size -->
+    <param name="xmax" value="100" />
+    <!-- Initial map size -->
+    <param name="ymax" value="100" />
+    <!-- Resolution of the map -->
+    <param name="delta" value="0.05" />
+    <!-- Translational sampling range for the likelihood -->
+    <param name="llsamplerange" value="0.01" />
+    <!-- Translational sampling step for the likelihood -->
+    <param name="llsamplestep" value="0.01" />
+    <!-- Angular sampling range for the likelihood -->
+    <param name="lasamplerange" value="0.005" />
+    <!-- Angular sampling step for the likelihood -->
+    <param name="lasamplestep" value="0.005" />
+    <!-- How long (in seconds) between transform publications. -->
+    <param name="transform_publish_period" value="0.05" />
+    <!-- Threshold on gmapping's occupancy values. Cells with
+         greater occupancy are considered occupied (i.e., set
+         to 100 in the resulting sensor_msgs/LaserScan).
+         New in 1.1.0.   -->
+    <param name="occ_thresh" value="0.25" />
+    <!-- The maximum range of the sensor. If regions with no obstacles within
+         the range of the sensor should appear as free space in the map,
+         set maxUrange < maximum range of the real sensor <= maxRange.   -->
+    <param name="maxRange" value="100" />
+  </node>
+
+  <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="hector_trajectory_server" output="screen">
+    <param name="target_frame_name" type="string" value="/map" />
+    <param name="source_frame_name" type="string" value="/base_link" />
+    <param name="trajectory_update_rate" type="double" value="4" />
+    <param name="trajectory_publish_rate" type="double" value="0.25" />
+  </node>
+
+
+  <node pkg="hector_geotiff" type="geotiff_node" name="hector_geotiff_node" output="screen" launch-prefix="nice -n 15">
+    <remap from="map" to="/dynamic_map" />
+    <param name="map_file_path" type="string" value="$(find hector_geotiff)/maps" />
+    <param name="map_file_base_name" type="string" value="hector_slam_map" />
+    <param name="draw_background_checkerboard" type="bool" value="true" />
+    <param name="draw_free_space_grid" type="bool" value="true" />
+  </node>
+
+ <node pkg="rviz" type="rviz" name="rviz"
+  args="-d /home/struncp/ros_workspace/test/SLAM_test_MIT_stata_center/settings.rviz" />
+
+</launch>
