@@ -49,7 +49,6 @@ end
 htheta = remap(htheta,[0 1],[-pi pi]);
 
 %transformace gmtheta z [-0.5 1] na [-pi pi] se zacatkem v 0
-gmtheta = remap(gmtheta,[-0.5 1],[0 1]);
 for i = 1:length(gmtheta)
     pom = gmtheta(i) -0.5;
     if pom < 0
@@ -58,7 +57,7 @@ for i = 1:length(gmtheta)
         gmtheta(i) = pom;
     end
 end
-gmtheta = remap(gmtheta,[0 1],[-pi pi]);
+gmtheta = remap(gmtheta,[min(gmtheta) max(gmtheta)],[-pi pi]);
 
 %transformace ctheta [7.4e-5 1] na [-pi pi] se zacatkem v 0
 for i = 1:length(ctheta)
