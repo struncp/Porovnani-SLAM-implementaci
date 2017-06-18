@@ -85,7 +85,7 @@ legend('ground truth', 'gMapping')
 subplot(3,1,3)
 plot(gtx, gty, 'k-', cx, cy, '-r')
 title('Google Cartographer: trajektorie')
-legend('ground truth', 'Hector SLAM')
+legend('ground truth', 'Google Cartographer')
 
 %% INTERPOLACE GT
 
